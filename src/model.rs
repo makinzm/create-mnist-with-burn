@@ -12,6 +12,32 @@ use nn::PaddingConfig2d;
 use rand::thread_rng;
 use rand_distr::{Distribution, StandardNormal};
 
+#[derive(Debug, Clone)]
+pub struct ModelConfig {
+    pub latent_size: usize,
+    pub hidden_size: usize,
+    pub conv1_out_channels: usize,
+    pub conv2_out_channels: usize,
+    pub deconv1_out_channels: usize,
+    pub deconv2_out_channels: usize,
+    pub linear_input_size: usize,
+}
+
+impl ModelConfig {
+    /// デフォルト設定を作成
+    pub fn default() -> Self {
+        Self {
+            latent_size: 64,
+            hidden_size: 128,
+            conv1_out_channels: 16,
+            conv2_out_channels: 32,
+            deconv1_out_channels: 16,
+            deconv2_out_channels: 1,
+            linear_input_size: 32 * 4 * 4,
+        }
+    }
+}
+
 /// エンコーダの定義
 #[derive(Module, Debug)]
 pub struct Encoder<B: Backend> {
@@ -23,6 +49,22 @@ pub struct Encoder<B: Backend> {
 }
 
 impl<B: Backend> Encoder<B> {
+    pub fn from_config(config: &ModelConfig, device: &B::Device) -> Self {
+        Self {
+            conv1: Conv2dConfig::new([1, config.conv1_out_channels], [3, 3])
+                .with_stride([2, 2])
+                .with_padding(PaddingConfig2d::Explicit(1, 1))
+                .init(device),
+            conv2: Conv2dConfig::new([config.conv1_out_channels, config.conv2_out_channels], [3, 3])
+                .with_stride([2, 2])
+                .with_padding(PaddingConfig2d::Explicit(1, 1))
+                .init(device),
+            pool: AdaptiveAvgPool2dConfig::new([4, 4]).init(),
+            linear_mu: LinearConfig::new(config.linear_input_size, config.latent_size).init(device),
+            linear_logvar: LinearConfig::new(config.linear_input_size, config.latent_size).init(device),
+        }
+    }
+
     pub fn new(device: &B::Device, _hidden_size: usize, latent_size: usize) -> Self {
         Self {
             conv1: Conv2dConfig::new([1, 16], [3, 3])
@@ -62,6 +104,20 @@ pub struct Decoder<B: Backend> {
 }
 
 impl<B: Backend> Decoder<B> {
+    pub fn from_config(config: &ModelConfig, device: &B::Device) -> Self {
+        Self {
+            linear: LinearConfig::new(config.latent_size, config.linear_input_size).init(device),
+            deconv1: Conv2dConfig::new([config.conv2_out_channels, config.deconv1_out_channels], [3, 3])
+                .with_stride([2, 2])
+                .with_padding(PaddingConfig2d::Explicit(1, 1))
+                .init(device),
+            deconv2: Conv2dConfig::new([config.deconv1_out_channels, config.deconv2_out_channels], [3, 3])
+                .with_stride([2, 2])
+                .with_padding(PaddingConfig2d::Explicit(1, 1))
+                .init(device),
+        }
+    }
+
     pub fn new(device: &B::Device, latent_size: usize) -> Self {
         Self {
             linear: LinearConfig::new(latent_size, 32 * 4 * 4).init(device),
@@ -94,6 +150,13 @@ pub struct VAE<B: Backend> {
 }
 
 impl<B: Backend> VAE<B> {
+    pub fn from_config(config: &ModelConfig, device: &B::Device) -> Self {
+        Self {
+            encoder: Encoder::from_config(config, device),
+            decoder: Decoder::from_config(config, device),
+        }
+    }
+
     pub fn new(device: &B::Device, _hidden_size: usize, latent_size: usize) -> Self {
         Self {
             encoder: Encoder::new(device, _hidden_size, latent_size),

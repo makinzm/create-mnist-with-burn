@@ -11,8 +11,9 @@ use burn::{
 use nn::PaddingConfig2d;
 use rand::thread_rng;
 use rand_distr::{Distribution, StandardNormal};
+use serde::{Serialize, Deserialize};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ModelConfig {
     pub latent_size: usize,
     pub hidden_size: usize,

@@ -5,4 +5,7 @@
 
 ```shell
 cargo build
+
+# Train
+cargo run -- --mode train
 ```

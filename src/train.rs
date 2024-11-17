@@ -111,9 +111,11 @@ pub fn train<B: AutodiffBackend>(artifact_dir: &str, config: TrainingConfig, dev
         .build(MnistDataset::test());
 
     // モデルの初期化 (from_config 使用)
+    println!("Initializing model...");
     let model = VAE::from_config(&config.model, &device);
 
     // 学習器の設定
+    println!("Building learner...");
     let learner = LearnerBuilder::new(artifact_dir)
         .metric_train_numeric(LossMetric::new())
         .metric_valid_numeric(LossMetric::new())
@@ -127,6 +129,9 @@ pub fn train<B: AutodiffBackend>(artifact_dir: &str, config: TrainingConfig, dev
             config.learning_rate,
         );
 
+    // TODO: The below is not reached.
+
+    println!("Start training...");
     // モデルの訓練
     let model_trained = learner.fit(dataloader_train, dataloader_test);
 

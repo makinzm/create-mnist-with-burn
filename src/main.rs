@@ -2,8 +2,8 @@ mod model;
 mod data;
 mod train;
 
-use std::path::Path;
 use clap::Parser;
+use std::panic;
 
 use burn::{
     backend::{Autodiff, Wgpu},
@@ -27,16 +27,16 @@ fn call_train() {
     let device = burn::backend::wgpu::WgpuDevice::default();
     let current_dir = std::env::current_dir().unwrap();
     let artifact_dir = current_dir.join("artifact");
-    if !Path::new(&artifact_dir).exists() {
+    // if !Path::new(&artifact_dir).exists() {
         println!("There is no model file. Start training.");
         crate::train::train::<MyAutodiffBackend>(
             artifact_dir.to_str().unwrap(),
             TrainingConfig::new(ModelConfig::default(), AdamConfig::new()),
             device,
         )
-    } else {
-        println!("Model file exists.");
-    }
+    // } else {
+    //     println!("Model file exists.");
+    // }
 }
 
 fn main() {
@@ -45,7 +45,13 @@ fn main() {
     match args.mode.as_str() {
         "train" => {
             println!("Training mode selected.");
-            call_train();
+            let result = panic::catch_unwind(|| {
+                call_train();
+            });
+            if result.is_err() {
+                eprintln!("An error occurred during training.");
+                println!("Caught panic: {:?}", result);
+            }
         }
         "infer" => {
             println!("Inference mode selected.");

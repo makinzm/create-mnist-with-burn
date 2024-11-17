@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-burn = "0.15.0"
+burn = { version = "0.15.0", features = ["wgpu", "train", "vision"] }
 image = "0.25.5"
 serde = { version = "1.0.215", features = ["derive"] }
 tokio = { version = "1.41.1", features = ["full"] }

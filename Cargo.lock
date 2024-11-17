@@ -876,6 +876,8 @@ version = "0.1.0"
 dependencies = [
  "burn",
  "image",
+ "rand",
+ "rand_distr",
  "serde",
  "tokio",
  "warp",

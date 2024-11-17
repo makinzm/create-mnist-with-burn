@@ -6,6 +6,8 @@ edition = "2021"
 [dependencies]
 burn = { version = "0.15.0", features = ["wgpu", "train", "vision"] }
 image = "0.25.5"
+rand = "0.8.5"
+rand_distr = "0.4.3"
 serde = { version = "1.0.215", features = ["derive"] }
 tokio = { version = "1.41.1", features = ["full"] }
 warp = "0.3.7"

@@ -112,7 +112,7 @@ pub fn train<B: AutodiffBackend>(artifact_dir: &str, config: TrainingConfig, dev
 
     // モデルの初期化 (from_config 使用)
     println!("Initializing model...");
-    let model = VAE::from_config(&config.model, &device);
+    let model = config.model.init::<B>(&device);
 
     // 学習器の設定
     println!("Building learner...");

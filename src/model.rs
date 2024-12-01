@@ -37,6 +37,13 @@ impl ModelConfig {
             linear_input_size: 32 * 4 * 4,
         }
     }
+    // モデルの初期化
+    pub fn init<B: Backend>(&self, device: &B::Device) -> VAE<B> {
+        VAE {
+            encoder: Encoder::new(device, self.hidden_size, self.latent_size),
+            decoder: Decoder::new(device, self.latent_size),
+        }
+    }
 }
 
 /// エンコーダの定義

@@ -168,7 +168,7 @@ impl<B: Backend> VAE<B> {
     pub fn forward(&self, x: Tensor<B, 3>, device: &B::Device) -> (Tensor<B, 3>, Tensor<B, 2>, Tensor<B, 2>) {
         let (mu, logvar) = self.encoder.forward(x);
         let std = logvar.clone()
-            .mul(Tensor::<B, 2>::from_data(TensorData::from([0.5f32]), device))
+            .mul(Tensor::<B, 2>::from_data(TensorData::from([[0.5f32]]), device))
             .exp();
         let shape = mu.dims();
         let numel = shape.iter().product();

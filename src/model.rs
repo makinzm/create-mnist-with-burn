@@ -176,7 +176,11 @@ impl<B: Backend> VAE<B> {
             .sample_iter(thread_rng())
             .take(numel)
             .collect();
-        let eps = Tensor::<B, 2>::from_data(TensorData::from(&eps_data[..]), device).reshape(shape);
+        let eps_data_flat: Vec<f32> = eps_data.into_iter().collect();
+        let eps = Tensor::<B, 2>::from_data(
+            TensorData::from(&eps_data_flat[..]), // フラットなデータを渡す
+            device,
+        ).reshape(shape);
         let z = mu.clone().add(std.mul(eps));
         let recon_x = self.decoder.forward(z);
         (recon_x, mu, logvar)

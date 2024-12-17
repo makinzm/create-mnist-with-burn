@@ -1,0 +1,103 @@
+2024-12-17T21:59:41.971464Z  INFO burn_train::learner::train_val: Fitting the model:
+ VAE {
+  encoder: Encoder {
+    conv1: Conv2d {stride: [2, 2], kernel_size: [3, 3], dilation: [1, 1], groups: 1, padding: Explicit(1, 1), params: 160}
+    conv2: Conv2d {stride: [2, 2], kernel_size: [3, 3], dilation: [1, 1], groups: 1, padding: Explicit(1, 1), params: 4640}
+    pool: AdaptiveAvgPool2d {output_size: [4, 4]}
+    linear_mu: Linear {d_input: 512, d_output: 64, bias: true, params: 32832}
+    linear_logvar: Linear {d_input: 512, d_output: 64, bias: true, params: 32832}
+    params: 70464
+  }
+  decoder: Decoder {
+    linear: Linear {d_input: 64, d_output: 512, bias: true, params: 33280}
+    deconv1: Conv2d {stride: [2, 2], kernel_size: [3, 3], dilation: [1, 1], groups: 1, padding: Explicit(1, 1), params: 4624}
+    deconv2: Conv2d {stride: [2, 2], kernel_size: [3, 3], dilation: [1, 1], groups: 1, padding: Explicit(1, 1), params: 145}
+    params: 38049
+  }
+  params: 108513
+}    
+2024-12-17T21:59:41.971565Z  INFO burn_train::learner::epoch: Executing training step for epoch 1    
+2024-12-17T21:59:41.985769Z  INFO burn_train::learner::epoch: Iteration 1    
+2024-12-17T21:59:41.985810Z  INFO burn_fusion::stream::store::base: New execution plan 14 - Operations: 1 - Triggers 1    
+2024-12-17T21:59:41.985859Z  INFO burn_fusion::stream::store::base: New execution plan 15 - Operations: 1 - Triggers 1    
+2024-12-17T21:59:41.988022Z  INFO cubecl_runtime::tune::tuner: Tuning Conv2dAutotuneKey - KernelSize: [3, 3], Stride: [2, 2], Padding: [1, 1], Dilation: [1, 1], Groups: 1, InChannels: 1, OutChannels: 16, Height: 32, Width: 32, BatchSize: 1, HasBias: true    
+2024-12-17T21:59:42.015751Z  INFO cubecl_runtime::tune::tuner: Name: burn_jit::kernel::conv::conv2d::tune::conv2d::Conv2dDirect<cubecl_wgpu::runtime::WgpuRuntime, f32, i32> => 
+―――――――― Result ―――――――――
+  Timing      device_only
+  Samples     10
+  Mean        10.275µs
+  Variance    0.000ns
+  Median      10.528µs
+  Min         9.792µs
+  Max         10.720µs
+―――――――――――――――――――――――――    
+2024-12-17T21:59:42.054884Z  INFO cubecl_runtime::tune::tuner: Name: burn_jit::kernel::conv::conv2d::tune::conv2d::Conv2dIm2col<cubecl_wgpu::runtime::WgpuRuntime, f32, i32> => 
+―――――――― Result ―――――――――
+  Timing      device_only
+  Samples     10
+  Mean        19.632µs
+  Variance    0.000ns
+  Median      19.584µs
+  Min         19.136µs
+  Max         20.288µs
+―――――――――――――――――――――――――    
+2024-12-17T21:59:42.054927Z  INFO cubecl_runtime::tune::tuner: Name: burn_jit::kernel::conv::conv2d::tune::conv2d::Conv2dImplicitGemm<cubecl_wgpu::runtime::WgpuRuntime, f32, i32> => 
+―――――――― Result ―――――――――
+  Timing      device_only
+  Samples     1
+  Mean        18446744073709551616.000s
+  Variance    0.000ns
+  Median      18446744073709551616.000s
+  Min         18446744073709551616.000s
+  Max         18446744073709551616.000s
+―――――――――――――――――――――――――    
+2024-12-17T21:59:42.054940Z  INFO cubecl_runtime::tune::tuner: Fastest result burn_jit::kernel::conv::conv2d::tune::conv2d::Conv2dDirect<cubecl_wgpu::runtime::WgpuRuntime, f32, i32>-Conv2dAutotuneKey - KernelSize: [3, 3], Stride: [2, 2], Padding: [1, 1], Dilation: [1, 1], Groups: 1, InChannels: 1, OutChannels: 16, Height: 32, Width: 32, BatchSize: 1, HasBias: true. 
+ Top 3 times: [10.528µs, 19.584µs, 18446744073709551615.999999999s]    
+2024-12-17T21:59:42.057780Z  INFO burn_fusion::stream::store::base: New execution plan 16 - Operations: 2 - Triggers 1    
+2024-12-17T21:59:42.059300Z  INFO burn_fusion::stream::store::base: New execution plan 17 - Operations: 1 - Triggers 1    
+2024-12-17T21:59:42.060236Z  INFO burn_fusion::stream::store::base: New execution plan 18 - Operations: 8 - Triggers 1    
+2024-12-17T21:59:42.061781Z  INFO burn_fusion::stream::store::base: New execution plan 19 - Operations: 1 - Triggers 1    
+2024-12-17T21:59:42.065201Z  INFO burn_fusion::stream::store::base: New execution plan 20 - Operations: 1 - Triggers 1    
+2024-12-17T21:59:42.065249Z  INFO burn_fusion::stream::store::base: New execution plan 21 - Operations: 1 - Triggers 1    
+2024-12-17T21:59:42.065287Z  INFO burn_fusion::stream::store::base: New execution plan 22 - Operations: 1 - Triggers 1    
+2024-12-17T21:59:42.065464Z  INFO cubecl_runtime::tune::tuner: Tuning Matmul - Round:false Broadcast:false m:1 k:512 n:64 batch:1    
+2024-12-17T21:59:42.084688Z  INFO cubecl_runtime::tune::tuner: Name: burn_jit::kernel::matmul::tune::base::SimpleMatmul<cubecl_wgpu::runtime::WgpuRuntime, f32> => 
+―――――――― Result ―――――――――
+  Timing      device_only
+  Samples     10
+  Mean        14.876µs
+  Variance    0.000ns
+  Median      14.976µs
+  Min         14.304µs
+  Max         15.296µs
+―――――――――――――――――――――――――    
+2024-12-17T21:59:42.097447Z  INFO cubecl_runtime::tune::tuner: Name: burn_jit::kernel::matmul::tune::base::SimpleMatmul16x16<cubecl_wgpu::runtime::WgpuRuntime, f32> => 
+―――――――― Result ―――――――――
+  Timing      device_only
+  Samples     10
+  Mean        15.036µs
+  Variance    0.000ns
+  Median      15.328µs
+  Min         14.368µs
+  Max         15.392µs
+―――――――――――――――――――――――――    
+2024-12-17T21:59:42.129048Z  INFO cubecl_runtime::tune::tuner: Name: burn_jit::kernel::matmul::tune::base::MatmulCube<cubecl_wgpu::runtime::WgpuRuntime, f32> => 
+―――――――― Result ―――――――――
+  Timing      device_only
+  Samples     10
+  Mean        44.483µs
+  Variance    0.000ns
+  Median      44.544µs
+  Min         44.256µs
+  Max         44.736µs
+―――――――――――――――――――――――――    
+2024-12-17T21:59:42.129092Z  INFO cubecl_runtime::tune::tuner: Fastest result burn_jit::kernel::matmul::tune::base::SimpleMatmul<cubecl_wgpu::runtime::WgpuRuntime, f32>-Matmul - Round:false Broadcast:false m:1 k:512 n:64 batch:1. 
+ Top 3 times: [14.976µs, 15.328µs, 44.544µs]    
+2024-12-17T21:59:42.130889Z  INFO burn_fusion::stream::store::base: New execution plan 23 - Operations: 1 - Triggers 1    
+2024-12-17T21:59:42.130994Z  INFO burn_fusion::stream::store::base: New execution plan 24 - Operations: 1 - Triggers 1    
+2024-12-17T21:59:42.132600Z ERROR burn_train::learner::application_logger: PANIC => panicked at /home/hope/.cargo/registry/src/index.crates.io-6f17d22bba15001f/burn-tensor-0.15.0/src/tensor/api/base.rs:722:9:
+=== Tensor Operation Error ===
+  Operation: 'From Data'
+  Reason:
+    1. Given dimensions differ from the tensor rank. Tensor rank: '2', given dimensions: '[64]'. 
+    

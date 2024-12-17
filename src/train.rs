@@ -113,8 +113,22 @@ pub fn train<B: AutodiffBackend>(artifact_dir: &str, config: TrainingConfig, dev
     // モデルの初期化 (from_config 使用)
     println!("Initializing model...");
     let model = VAE::from_config(&config.model, &device);
+    println!("Conv1 weight shape: {:?}", model.encoder().conv1().weight.dims());
+    println!("Conv1 bias shape: {:?}", model.encoder().conv1().bias.as_ref().map(|b| b.dims()));
+    println!("Conv2 weight shape: {:?}", model.encoder().conv2().weight.dims());
+    println!("Conv2 bias shape: {:?}", model.encoder().conv2().bias.as_ref().map(|b| b.dims()));
+    println!("Linear_mu weight shape: {:?}", model.encoder().linear_mu().weight.dims());
+    println!("Linear_mu bias shape: {:?}", model.encoder().linear_mu().bias.as_ref().map(|b| b.dims()));
+    println!("Linear_logvar weight shape: {:?}", model.encoder().linear_logvar().weight.dims());
+    println!("Linear_logvar bias shape: {:?}", model.encoder().linear_logvar().bias.as_ref().map(|b| b.dims()));
 
-    println!("Model: {:?}", model);
+    println!("Linear weight shape: {:?}", model.decoder().linear().weight.dims());
+    println!("Linear bias shape: {:?}", model.decoder().linear().bias.as_ref().map(|b| b.dims()));
+    println!("Deconv1 weight shape: {:?}", model.decoder().deconv1().weight.dims());
+    println!("Deconv1 bias shape: {:?}", model.decoder().deconv1().bias.as_ref().map(|b| b.dims()));
+    println!("Deconv2 weight shape: {:?}", model.decoder().deconv2().weight.dims());
+    println!("Deconv2 bias shape: {:?}", model.decoder().deconv2().bias.as_ref().map(|b| b.dims()));
+
     println!("Learning rate: {:?}", config.learning_rate);
     let optimizer = config.optimizer.init();
 

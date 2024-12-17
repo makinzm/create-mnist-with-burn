@@ -1,0 +1,23 @@
+{
+  "model": {
+    "latent_size": 64,
+    "hidden_size": 128,
+    "conv1_out_channels": 16,
+    "conv2_out_channels": 32,
+    "deconv1_out_channels": 16,
+    "deconv2_out_channels": 1,
+    "linear_input_size": 512
+  },
+  "optimizer": {
+    "weight_decay": null,
+    "grad_clipping": null,
+    "beta_1": 0.9,
+    "beta_2": 0.999,
+    "epsilon": 0.00001
+  },
+  "num_epochs": 10,
+  "batch_size": 64,
+  "num_workers": 4,
+  "seed": 42,
+  "learning_rate": 0.0001
+}

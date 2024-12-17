@@ -50,6 +50,24 @@ pub struct Encoder<B: Backend> {
 }
 
 impl<B: Backend> Encoder<B> {
+    pub fn conv1(&self) -> &Conv2d<B> {
+        &self.conv1
+    }
+
+    pub fn conv2(&self) -> &Conv2d<B> {
+        &self.conv2
+    }
+
+    pub fn linear_mu(&self) -> &Linear<B> {
+        &self.linear_mu
+    }
+
+    pub fn linear_logvar(&self) -> &Linear<B> {
+        &self.linear_logvar
+    }
+}
+
+impl<B: Backend> Encoder<B> {
     pub fn from_config(config: &ModelConfig, device: &B::Device) -> Self {
         Self {
             conv1: Conv2dConfig::new([1, config.conv1_out_channels], [3, 3])
@@ -105,6 +123,20 @@ pub struct Decoder<B: Backend> {
 }
 
 impl<B: Backend> Decoder<B> {
+    pub fn linear(&self) -> &Linear<B> {
+        &self.linear
+    }
+
+    pub fn deconv1(&self) -> &Conv2d<B> {
+        &self.deconv1
+    }
+
+    pub fn deconv2(&self) -> &Conv2d<B> {
+        &self.deconv2
+    }
+}
+
+impl<B: Backend> Decoder<B> {
     pub fn from_config(config: &ModelConfig, device: &B::Device) -> Self {
         Self {
             linear: LinearConfig::new(config.latent_size, config.linear_input_size).init(device),
@@ -151,6 +183,15 @@ pub struct VAE<B: Backend> {
 }
 
 impl<B: Backend> VAE<B> {
+
+    pub fn encoder(&self) -> &Encoder<B> {
+        &self.encoder
+    }
+
+    pub fn decoder(&self) -> &Decoder<B> {
+        &self.decoder
+    }
+
     pub fn from_config(config: &ModelConfig, device: &B::Device) -> Self {
         Self {
             encoder: Encoder::from_config(config, device),

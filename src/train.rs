@@ -9,7 +9,6 @@ use burn::train::metric::LossMetric;
 use burn::nn::loss::MseLoss;
 use burn::nn::loss::Reduction;
 use burn::train::metric::{Adaptor, LossInput};
-use burn::data::dataloader::batcher::Batcher;
 
 use crate::data::{MnistBatch, MnistBatcher};
 use crate::model::{VAE, ModelConfig};
@@ -120,6 +119,7 @@ pub fn train<B: AutodiffBackend>(artifact_dir: &str, config: TrainingConfig, dev
     let optimizer = config.optimizer.init();
 
     let batcher_train = MnistBatcher::<B>::new(device.clone());
+    // Debug
     let dataloader_train = DataLoaderBuilder::new(batcher_train)
         .batch_size(1) // 1件だけ取得する
         .shuffle(config.seed)
@@ -133,19 +133,33 @@ pub fn train<B: AutodiffBackend>(artifact_dir: &str, config: TrainingConfig, dev
     // 学習器の設定
     println!("Building learner...");
 
-    let learner = LearnerBuilder::new(artifact_dir)
-        .metric_train_numeric(LossMetric::new())
-        .metric_valid_numeric(LossMetric::new())
-        .with_file_checkpointer(CompactRecorder::new())
-        .devices(vec![device.clone()])
-        .num_epochs(config.num_epochs)
-        .summary()
+    let learner = LearnerBuilder::new(artifact_dir);
+    println!("LearnerBuilder initialized.");
+    let learner = learner
+        .metric_train_numeric(LossMetric::new());
+    println!("LearnerBuilder metric_train_numeric set.");
+    let learner = learner
+        .metric_valid_numeric(LossMetric::new());
+    println!("LearnerBuilder metric_valid_numeric set.");
+    let learner = learner
+        .with_file_checkpointer(CompactRecorder::new());
+    println!("LearnerBuilder with_file_checkpointer set.");
+    let learner = learner
+        .devices(vec![device.clone()]);
+    println!("LearnerBuilder devices set.");
+    let learner = learner
+        .num_epochs(config.num_epochs);
+    println!("LearnerBuilder num_epochs set.");
+    let learner = learner
+        .summary();
+    println!("LearnerBuilder summary set.");
+    let learner = learner
         .build(
             model,
             optimizer,
             config.learning_rate,
         );
-
+    println!("LearnerBuilder build done.");
     // TODO: The below is not reached.
 
     println!("Start training...");

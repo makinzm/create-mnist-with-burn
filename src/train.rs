@@ -9,6 +9,7 @@ use burn::train::metric::LossMetric;
 use burn::nn::loss::MseLoss;
 use burn::nn::loss::Reduction;
 use burn::train::metric::{Adaptor, LossInput};
+use burn::data::dataloader::batcher::Batcher;
 
 use crate::data::{MnistBatch, MnistBatcher};
 use crate::model::{VAE, ModelConfig};
@@ -114,8 +115,24 @@ pub fn train<B: AutodiffBackend>(artifact_dir: &str, config: TrainingConfig, dev
     println!("Initializing model...");
     let model = VAE::from_config(&config.model, &device);
 
+    println!("Model: {:?}", model);
+    println!("Learning rate: {:?}", config.learning_rate);
+    let optimizer = config.optimizer.init();
+
+    let batcher_train = MnistBatcher::<B>::new(device.clone());
+    let dataloader_train = DataLoaderBuilder::new(batcher_train)
+        .batch_size(1) // 1件だけ取得する
+        .shuffle(config.seed)
+        .build(MnistDataset::train());
+
+    for (i, batch) in dataloader_train.iter().take(1).enumerate() {
+        println!("Batch {} images shape: {:?}", i, batch.images.dims());
+        println!("Batch {} targets shape: {:?}", i, batch.targets.dims());
+    }
+
     // 学習器の設定
     println!("Building learner...");
+
     let learner = LearnerBuilder::new(artifact_dir)
         .metric_train_numeric(LossMetric::new())
         .metric_valid_numeric(LossMetric::new())
@@ -125,7 +142,7 @@ pub fn train<B: AutodiffBackend>(artifact_dir: &str, config: TrainingConfig, dev
         .summary()
         .build(
             model,
-            config.optimizer.init(),
+            optimizer,
             config.learning_rate,
         );
 

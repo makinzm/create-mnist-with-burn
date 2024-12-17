@@ -36,7 +36,7 @@ fn create_artifact_dir(artifact_dir: &str) {
 }
 
 pub struct VAEOutput<B: Backend> {
-    pub loss: Tensor<B, 0>,
+    pub loss: Tensor<B, 1>,
 }
 
 impl<B: Backend> Adaptor<LossInput<B>> for VAEOutput<B> {
@@ -48,6 +48,7 @@ impl<B: Backend> Adaptor<LossInput<B>> for VAEOutput<B> {
 impl<B: AutodiffBackend> TrainStep<MnistBatch<B>, VAEOutput<B>> for VAE<B> {
     fn step(&self, batch: MnistBatch<B>) -> TrainOutput<VAEOutput<B>> {
         let loss = self.forward_loss(batch.images.clone(), &batch.images.device());
+        println!("Loss shape: {:?}", loss.dims());
         TrainOutput::new(self, loss.backward(), VAEOutput { loss })
     }
 }
@@ -60,7 +61,7 @@ impl<B: Backend> ValidStep<MnistBatch<B>, VAEOutput<B>> for VAE<B> {
 }
 
 impl<B: Backend> VAE<B> {
-    pub fn forward_loss(&self, images: Tensor<B, 3>, device: &B::Device) -> Tensor<B, 0> {
+    pub fn forward_loss(&self, images: Tensor<B, 3>, device: &B::Device) -> Tensor<B, 1> {
         let (recon_images, mu, logvar) = self.forward(images.clone(), device);
 
         // 再構成損失（MSE）
@@ -77,8 +78,8 @@ impl<B: Backend> VAE<B> {
             .mul_scalar(-0.5);
 
         // 合計損失
-        let recon_loss_zero = recon_loss.squeeze(0);
-        let kl_loss_zero = kl_loss.squeeze(0);
+        let recon_loss_zero = recon_loss;
+        let kl_loss_zero = kl_loss;
         recon_loss_zero + kl_loss_zero
     }
 }
@@ -164,9 +165,6 @@ pub fn train<B: AutodiffBackend>(artifact_dir: &str, config: TrainingConfig, dev
     let learner = learner
         .num_epochs(config.num_epochs);
     println!("LearnerBuilder num_epochs set.");
-    let learner = learner
-        .summary();
-    println!("LearnerBuilder summary set.");
     let learner = learner
         .build(
             model,
